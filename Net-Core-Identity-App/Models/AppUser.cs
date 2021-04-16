@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Net_Core_Identity_App.Models
 {
-    public class AppUser:IdentityUser
+    // dbo.AspNetUsers database tablosuna karsilik geliyor. 
+    public class AppUser : IdentityUser
     {
     }
 }

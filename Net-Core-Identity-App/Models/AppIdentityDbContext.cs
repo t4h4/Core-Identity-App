@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Net_Core_Identity_App.Models
 {
-    public class AppIdentityDbContext:IdentityDbContext<AppUser>
+    public class AppIdentityDbContext:IdentityDbContext<AppUser, AppRole, string> // pk string olsun.
     {
         public AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options) : base(options) // kalitilan base class'a gonderiliyor.
         {
