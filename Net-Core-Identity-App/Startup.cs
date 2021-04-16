@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Net_Core_Identity_App.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +26,19 @@ namespace Net_Core_Identity_App
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // entity servis ekleme
+            services.AddDbContext<AppIdentityDbContext>(opts =>
+            {
+                opts.UseSqlServer(Configuration["ConnectionStrings:DefaultConnectionString"]);
+                // opts.UseSqlServer(configuration["ConnectionStrings:DefaultAzureConnectionString"]);
+            });
+
+            // identity servis ekleme
+            services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>();
+            // kaydedilecegi yer <AppIdentityDbContext> bunu saglayan func. AddEntityFrameworkStores
+            // <AppIdentityDbContext> , <AppUser, IdentityRole> entity'deki varliklari sql server'da tablolari olusturacak.
+
+
             services.AddControllersWithViews();
         }
 
@@ -43,6 +59,8 @@ namespace Net_Core_Identity_App
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
