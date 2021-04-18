@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Net_Core_Identity_App.CustomValidation;
 using Net_Core_Identity_App.Models;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,9 @@ namespace Net_Core_Identity_App
                 opts.Password.RequireUppercase = false;
                 opts.Password.RequireDigit = false;
 
-            }).AddEntityFrameworkStores<AppIdentityDbContext>();
+            })
+                .AddPasswordValidator<CustomPasswordValidator>() // ozel sifre validasyon sinifi eklendi.
+                .AddEntityFrameworkStores<AppIdentityDbContext>();
             // kaydedilecegi yer <AppIdentityDbContext> bunu saglayan func. AddEntityFrameworkStores
             // <AppIdentityDbContext> , <AppUser, IdentityRole> entity'deki varliklari sql server'da tablolari olusturacak.
 
