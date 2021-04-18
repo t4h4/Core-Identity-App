@@ -43,6 +43,12 @@ namespace Net_Core_Identity_App
                 opts.Password.RequireUppercase = false;
                 opts.Password.RequireDigit = false;
 
+                // kullanici dogrulama ayarlari 
+                opts.User.RequireUniqueEmail = true; // mail benzersiz olmali. 
+                //https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.useroptions.allowedusernamecharacters?view=aspnetcore-2.2
+                opts.User.AllowedUserNameCharacters = "abcçdefgðhýijklmnoöçpqrsþtuüvwxyzABCÇDEFGÐHIÝJKLMNOÖPQRSTUÜVWXYZ0123456789-._";
+
+
             })
                 .AddPasswordValidator<CustomPasswordValidator>() // ozel sifre validasyon sinifi eklendi.
                 .AddEntityFrameworkStores<AppIdentityDbContext>();
