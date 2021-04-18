@@ -51,6 +51,7 @@ namespace Net_Core_Identity_App
 
             })
                 .AddPasswordValidator<CustomPasswordValidator>() // ozel sifre validasyon sinifi eklendi.
+                .AddUserValidator<CustomUserValidator>() // ozel kullanici validasyon sinifi eklendi. 
                 .AddEntityFrameworkStores<AppIdentityDbContext>();
             // kaydedilecegi yer <AppIdentityDbContext> bunu saglayan func. AddEntityFrameworkStores
             // <AppIdentityDbContext> , <AppUser, IdentityRole> entity'deki varliklari sql server'da tablolari olusturacak.
