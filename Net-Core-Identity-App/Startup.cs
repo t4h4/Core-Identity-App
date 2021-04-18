@@ -42,7 +42,6 @@ namespace Net_Core_Identity_App
 
             cookieBuilder.Name = "MyBlog";
             cookieBuilder.HttpOnly = false; // client side cookie bilgisi okunmayacak. sadece http istegi uzerinden cookie bilgisini almak istiyorum.
-            cookieBuilder.Expiration = System.TimeSpan.FromDays(60); // 60 gun boyunca cookie bilgisini tutacak. 
             cookieBuilder.SameSite = SameSiteMode.Lax; // siteler arasi cookie paylasimi acik. alt domain'de ayný cookie yapisini kullanabilir. strict olsaydi kisitli olurdu. detaylar icin anahtar Cross-Site Request Forgery (CSRF)
             cookieBuilder.SecurePolicy = CookieSecurePolicy.SameAsRequest; // always olsaydý sadece https istegiyle cookie sunucuya giderdi. SameAsRequest hangisinden gelirse ondan gonderiyor http ya da https farketmez. ilk http'den kaydedildiyse sadece http'den gonderir. ama none olursa bu da onemsiz olur. ne olursa olsun gonderir. 
 
@@ -51,6 +50,7 @@ namespace Net_Core_Identity_App
                 opts.LoginPath = new PathString("/Home/Login");
                 opts.Cookie = cookieBuilder;
                 opts.SlidingExpiration = true; // cookie omrunun yarisi gectikten sonra kullanici tekrar istek yaparsa default olarak sure tekrar 60 gune cikarilir. 
+                opts.ExpireTimeSpan = System.TimeSpan.FromDays(60); // 60 gun boyunca cookie bilgisini tutacak. 
             });
 
 
