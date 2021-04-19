@@ -62,9 +62,9 @@ namespace Net_Core_Identity_App.Controllers
                 {
                     await signInManager.SignOutAsync(); // oncesinde kullanici cikis yapiyor. temiz baslangic. kullanici cookie siliniyor.
 
-                    // PasswordSignInAsync method sayesinde kullanici girisi saglaniyor. 60 gun cookie saklanmasini aktif etmek icin true demek lazim ama simdilik false diyoruz.
+                    // PasswordSignInAsync method sayesinde kullanici girisi saglaniyor. 60 gun cookie saklanmasini aktif etmek icin true demek lazim. onu checkbox ile kontrol ediyoruz. 
                     // ikinci false ise fail girislerde kullaniciyi kilitleyip kilitlememeyle alakali. simdilik atif etmiyoruz. false diyoruz. 
-                    Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(user, userlogin.Password, false, false);
+                    Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(user, userlogin.Password, userlogin.RememberMe, false);
 
 
                     // result.IsLockedOut kullanici kitli mi degil mi veritabanindan kontrol ediyor. true mu false mu diye
@@ -85,7 +85,7 @@ namespace Net_Core_Identity_App.Controllers
                     ModelState.AddModelError("", "Geçersiz email adresi veya şifresi.");
                 }
             }
-            return View();
+            return View(userlogin); // onceki commitlerde unutuldu yeni yapildi. hata olursa gene ayni sekilde dolsun diye. 
         }
 
 
