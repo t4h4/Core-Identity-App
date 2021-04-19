@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Net_Core_Identity_App.Models;
@@ -28,7 +29,7 @@ namespace Net_Core_Identity_App.Controllers
         {
             return View();
         }
-
+        [Authorize] // yetkisiz girisi yasakladik. cookie olmadan asla. 
         public IActionResult Privacy()
         {
             return View();
@@ -44,8 +45,9 @@ namespace Net_Core_Identity_App.Controllers
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        public IActionResult LogIn()
+        public IActionResult LogIn(string ReturnUrl) // return url yetkisiz sayfaya girince direk yukardaki urlden geliyor. yetkisiz girisler cookie'den login'e aktarildigi icin burada bu isi yapiyoruz. 
         {
+            TempData["ReturnUrl"] = ReturnUrl; // action'lar arasi veri aktarmak icin TempData kullanmak ideal. 
             return View();
         }
 
@@ -69,7 +71,12 @@ namespace Net_Core_Identity_App.Controllers
                     // result.IsNotAllowed kullanicinin giris izni var mi yok mu? yanlis giris sayisini asmis mi asmamis mi kontrol ediyor. 
                     if (result.Succeeded) // eger basariliysa giris
                     {
-                                              //action    controller
+                        if (TempData["ReturnUrl"] != null)
+                        {
+                            return Redirect(TempData["ReturnUrl"].ToString()); // kullanici basarili giris yaptiktan sonra hangi yetkisiz oldugu sayfadan geliyorsa o sayfaya yonlendirilecek. 
+                        }
+
+                        //action    controller
                         return RedirectToAction("Index", "Member");
                     }
                 }
