@@ -14,12 +14,14 @@ namespace Net_Core_Identity_App.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        public UserManager<AppUser> userManager { get; } // UserManager DI islemi yapiyoruz. 
+        public UserManager<AppUser> userManager { get; } // UserManager DI islemi yapiyoruz.
+        public SignInManager<AppUser> signInManager { get; } // SignInManager DI islemi yapiyoruz.
 
-        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
             _logger = logger;
             this.userManager = userManager;
+            this.signInManager = signInManager;
         }
 
         public IActionResult Index()
@@ -39,9 +41,43 @@ namespace Net_Core_Identity_App.Controllers
         }
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         public IActionResult LogIn()
         {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogIn(LoginViewModel userlogin)
+        {
+            if (ModelState.IsValid) // view'de girilen model validasyonu gecerliyse, dogruysa
+            {
+                AppUser user = await userManager.FindByEmailAsync(userlogin.Email); // kullanici var mi yok mu?
+
+                if (user != null)
+                {
+                    await signInManager.SignOutAsync(); // oncesinde kullanici cikis yapiyor. temiz baslangic. kullanici cookie siliniyor.
+
+                    // PasswordSignInAsync method sayesinde kullanici girisi saglaniyor. 60 gun cookie saklanmasini aktif etmek icin true demek lazim ama simdilik false diyoruz.
+                    // ikinci false ise fail girislerde kullaniciyi kilitleyip kilitlememeyle alakali. simdilik atif etmiyoruz. false diyoruz. 
+                    Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(user, userlogin.Password, false, false);
+
+
+                    // result.IsLockedOut kullanici kitli mi degil mi veritabanindan kontrol ediyor. true mu false mu diye
+                    // result.IsNotAllowed kullanicinin giris izni var mi yok mu? yanlis giris sayisini asmis mi asmamis mi kontrol ediyor. 
+                    if (result.Succeeded) // eger basariliysa giris
+                    {
+                                              //action    controller
+                        return RedirectToAction("Index", "Member");
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Geçersiz email adresi veya şifresi.");
+                }
+            }
             return View();
         }
 
