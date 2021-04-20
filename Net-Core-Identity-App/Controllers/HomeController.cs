@@ -188,5 +188,13 @@ namespace Net_Core_Identity_App.Controllers
 
             return View(passwordResetViewModel);
         }
+
+        public IActionResult ResetPasswordConfirm(string userId, string token)
+        {
+            TempData["userId"] = userId; // temp dataya gecici olarak kaydediyoruz. 
+            TempData["token"] = token;
+
+            return View();
+        }
     }
 }
