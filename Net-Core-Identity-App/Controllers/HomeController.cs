@@ -60,6 +60,16 @@ namespace Net_Core_Identity_App.Controllers
 
                 if (user != null)
                 {
+                    if (await userManager.IsLockedOutAsync(user)) // eger kullanici kitli ise? kitli ise true donecek.
+                    {
+                        ModelState.AddModelError("", "Hesabınız bir süreliğine kilitlenmiştir. Lütfen daha sonra tekrar deneyiniz."); // hernagi bir textbox hedeflenmedigi icin ilk secenek bos. 
+
+                        return View(userlogin);
+                    }
+
+
+
+
                     await signInManager.SignOutAsync(); // oncesinde kullanici cikis yapiyor. temiz baslangic. kullanici cookie siliniyor.
 
                     // PasswordSignInAsync method sayesinde kullanici girisi saglaniyor. 60 gun cookie saklanmasini aktif etmek icin true demek lazim. onu checkbox ile kontrol ediyoruz. 
@@ -71,6 +81,8 @@ namespace Net_Core_Identity_App.Controllers
                     // result.IsNotAllowed kullanicinin giris izni var mi yok mu? yanlis giris sayisini asmis mi asmamis mi kontrol ediyor. 
                     if (result.Succeeded) // eger basariliysa giris
                     {
+                        await userManager.ResetAccessFailedCountAsync(user); // eger basarili giris yaparsa fail girisleri sifirlanacak.
+
                         if (TempData["ReturnUrl"] != null)
                         {
                             return Redirect(TempData["ReturnUrl"].ToString()); // kullanici basarili giris yaptiktan sonra hangi yetkisiz oldugu sayfadan geliyorsa o sayfaya yonlendirilecek. 
@@ -79,10 +91,27 @@ namespace Net_Core_Identity_App.Controllers
                         //action    controller
                         return RedirectToAction("Index", "Member");
                     }
+                    else // giris basarili degilse sifre yanlissa
+                    {
+                        await userManager.AccessFailedAsync(user); // kullanicinin basarisiz giris counter'ini 1 arttiracak.
+
+                        int fail = await userManager.GetAccessFailedCountAsync(user); // kullanicinin kac kez basarisiz giris yaptigi. 
+                        ModelState.AddModelError("", $" {fail} kez başarısız giriş.");
+                        if (fail == 3)
+                        {
+                            await userManager.SetLockoutEndDateAsync(user, new System.DateTimeOffset(DateTime.Now.AddMinutes(20))); // 20 dakika ileriye kadar kitliyor. 
+
+                            ModelState.AddModelError("", "Hesabınız 3 başarısız girişten dolayı 20 dakika süreyle kitlenmiştir. Lütfen daha sonra tekrar deneyiniz.");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "Şifreniz doğru değil.");
+                        }
+                    }
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Geçersiz email adresi veya şifresi.");
+                    ModelState.AddModelError("", "Bu email adresine kayıtlı kullanıcı bulunamamıştır.");
                 }
             }
             return View(userlogin); // onceki commitlerde unutuldu yeni yapildi. hata olursa gene ayni sekilde dolsun diye. 
