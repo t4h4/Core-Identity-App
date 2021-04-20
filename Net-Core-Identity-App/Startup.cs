@@ -55,7 +55,9 @@ namespace Net_Core_Identity_App
                 .AddPasswordValidator<CustomPasswordValidator>() // ozel sifre validasyon sinifi eklendi.
                 .AddUserValidator<CustomUserValidator>() // ozel kullanici validasyon sinifi eklendi. 
                 .AddErrorDescriber<CustomIdentityErrorDescriber>() // dogrulama mesajlarini turkcelestiren sinif eklendi. 
-                .AddEntityFrameworkStores<AppIdentityDbContext>();
+                .AddEntityFrameworkStores<AppIdentityDbContext>()
+                .AddDefaultTokenProviders(); // token'lar kullanmak icin gerekli servisi ekledik.
+
             // kaydedilecegi yer <AppIdentityDbContext> bunu saglayan func. AddEntityFrameworkStores
             // <AppIdentityDbContext> , <AppUser, IdentityRole> entity'deki varliklari sql server'da tablolari olusturacak.
 

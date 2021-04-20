@@ -166,10 +166,27 @@ namespace Net_Core_Identity_App.Controllers
             if (user != null) // kayitli bir kullanici varsa
             {
                 string passwordResetToken = userManager.GeneratePasswordResetTokenAsync(user).Result; // user bilgilerinden olusan token olusturuyor. 
+
+                // kullanici linke tikladiginda home controller'daki ResetPasswordConfirm func. calisacak. 
+                string passwordResetLink = Url.Action("ResetPasswordConfirm", "Home", new
+                {
+                    userId = user.Id,
+                    token = passwordResetToken
+                }, HttpContext.Request.Scheme);
+
+                //  www.t4h4.net/Home/ResetPasswordConfirm?userId=sdjfsjf&token=dfjkdjfdjf
+
+                Helper.PasswordReset.PasswordResetSendEmail(passwordResetLink);
+
+                ViewBag.status = "success"; // view'e mesaj gonderiyoruz.
+                TempData["durum"] = true.ToString();
+            }
+            else
+            {
+                ModelState.AddModelError("", "Sistemde kayıtlı email adresi bulunamamıştır.");
             }
 
-                return View();
+            return View(passwordResetViewModel);
         }
-
     }
 }
