@@ -154,5 +154,22 @@ namespace Net_Core_Identity_App.Controllers
             return View(userViewModel); // icine userViewModel yazdik cunku kullanici hatali olursa textbox'lari tekrar doldurmayla ugrasmasin hazir gelsin diye.
         }
 
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(PasswordResetViewModel passwordResetViewModel)
+        {
+            AppUser user = userManager.FindByEmailAsync(passwordResetViewModel.Email).Result; // resut demek sonuclanincaya kadar bekle, alt satira gecme. boyle bir kullanici var mi yok mu kontrol ediliyor. 
+            if (user != null) // kayitli bir kullanici varsa
+            {
+                string passwordResetToken = userManager.GeneratePasswordResetTokenAsync(user).Result; // user bilgilerinden olusan token olusturuyor. 
+            }
+
+                return View();
+        }
+
     }
 }
