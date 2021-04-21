@@ -196,5 +196,44 @@ namespace Net_Core_Identity_App.Controllers
 
             return View();
         }
+
+
+        [HttpPost]
+        // PasswordResetViewModel 'den ayrica email'de geliyor lakin buna ihtiyacimiz yok. o yuzden sadece password icin bind kullaniyoruz. sadece PasswordNew dolacak
+        public async Task<IActionResult> ResetPasswordConfirm([Bind("PasswordNew")] PasswordResetViewModel passwordResetViewModel)
+        {
+            string token = TempData["token"].ToString();
+            string userId = TempData["userId"].ToString();
+
+            AppUser user = await userManager.FindByIdAsync(userId);
+
+            if (user != null)
+            {
+                IdentityResult result = await userManager.ResetPasswordAsync(user, token, passwordResetViewModel.PasswordNew);
+
+                if (result.Succeeded)
+                {
+                    await userManager.UpdateSecurityStampAsync(user); // kullanicilarin kritik bilgilerinin degisip degismedigini anladigimiz security stamp'i guncelliyoruz. sifre degistiginde baska bi cihazdaki baglantida logine atar bu sayede.
+
+                    ViewBag.status = "success";
+                }
+                else
+                {
+                    //AddModelError(result);
+
+                    foreach (var item in result.Errors)
+                    {
+                        ModelState.AddModelError("", item.Description);
+                    }
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "hata meydana gelmiştir. Lütfen daha sonra tekrar deneyiniz.");
+            }
+
+            return View(passwordResetViewModel);
+
+        }
     }
 }
