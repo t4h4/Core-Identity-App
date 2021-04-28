@@ -38,5 +38,51 @@ namespace Net_Core_Identity_App.Controllers
 
             return View(userViewModel); // userViewModel dolmus olarak geldi. bunu view'e gonderiyoruz.
         }
+
+        public IActionResult PasswordChange()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult PasswordChange(PasswordChangeViewModel passwordChangeViewModel)
+        {
+            if (ModelState.IsValid) // view'de girilen model validasyonu gecerliyse, dogruysa
+            {
+                AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result; // name degerini o anki cookie bilgisinden okuyor. veritabanindan gelmiyor. async olmadan direk result'tan gidildi.
+
+                bool exist = userManager.CheckPasswordAsync(user, passwordChangeViewModel.PasswordOld).Result; // girilen eski sifrenin dogrulugu kontrol ediliyor. 
+
+                if (exist)
+                {
+                    IdentityResult result = userManager.ChangePasswordAsync(user, passwordChangeViewModel.PasswordOld, passwordChangeViewModel.PasswordNew).Result; // sifre degistirme islemi yapiliyor. 
+
+                    if (result.Succeeded) // eger basariyla sifre degismisse 
+                    {
+                        userManager.UpdateSecurityStampAsync(user); // SecurityStamp guncelle. 
+                        // eger asagidaki iki parcayi girmeseydik identity api otomatik 30 dakika sonra oturumu sonlandiracakti, login sayfasina yonlendirecekti.  bu varsayilan bi' ayardi. biz hemen cikis ve giris yaptik. 
+                        signInManager.SignOutAsync(); // sifre degistigi icin cikis islemi yapiliyor. 
+                        signInManager.PasswordSignInAsync(user, passwordChangeViewModel.PasswordNew, true, false); // kullanici giris islemi saglaniyor. true ise cookie'nin startup.cs de belirlenen gecerlilik suresi aktif ediliyor. false ile kilitleme islemi deaktif. 
+
+                        // ornegin hem kullanici hem bayi login ekranlari varsa bunlarin secimi icin signInManager.SignInAsync() method kullanilir. (ekstra durum)
+
+                        ViewBag.success = "true"; // flag atiliyor. 
+                    }
+                    else
+                    {
+                        foreach (var item in result.Errors)
+                        {
+                            ModelState.AddModelError("", item.Description); // hatalar modelstate 'e ekleniyor. 
+                        }
+                    }
+                }
+                else // eski sifrenin yanlis olma durumu.  exist'e gore. 
+                {
+                    ModelState.AddModelError("", "Eski şifreniz yanlış");
+                }
+            }
+
+            return View(passwordChangeViewModel); // hatalar varsa hatalari tekrar gosterebilmek icin kullaniciya gonderiyoruz. ilgili alanlar textboxlar tekrar dolsun. 
+        }
     }
 }
