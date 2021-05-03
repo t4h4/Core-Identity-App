@@ -27,6 +27,11 @@ namespace Net_Core_Identity_App.Controllers
 
         public IActionResult Index()
         {
+            if(User.Identity.IsAuthenticated) // kullanici login olmussa true donecek.
+            {
+                return RedirectToAction("Index", "Member"); // index'ten member'a gitsin.
+            }
+
             return View();
         }
         [Authorize] // yetkisiz girisi yasakladik. cookie olmadan asla. 
