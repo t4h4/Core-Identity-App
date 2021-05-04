@@ -39,6 +39,50 @@ namespace Net_Core_Identity_App.Controllers
             return View(userViewModel); // userViewModel dolmus olarak geldi. bunu view'e gonderiyoruz.
         }
 
+        public IActionResult UserEdit()
+        {
+            AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result; // kullaniciyi elde ediyoruz. name ile buluyoruz. user identity kesin gelir cunku bu sinif login olanlarin girebilecegi authorize ayarlanmis bir sinif. 
+
+            UserViewModel userViewModel = user.Adapt<UserViewModel>(); // // elde ettigimiz user'i cast ediyoruz. daha once olusturdugumuz userview modele cast ediyoruz. yani o modeldeki property alanlarini degistirebilir sadece. 
+
+            return View(userViewModel); // view'e dolu bir userViewModel'i veriyoruz. 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UserEdit(UserViewModel userViewModel) // UserEdit.cshtml sayfasindan userViewModel gelecek. 
+        {
+           ModelState.Remove("Password"); // password alani kullanmadigimiz icin kaldirmamiz gerekir. yoksa asagidaki valid'e takilir.
+
+            if (ModelState.IsValid) // gelen bilgiler validse
+            {
+                AppUser user = await userManager.FindByNameAsync(User.Identity.Name);
+
+                user.UserName = userViewModel.UserName;
+                user.Email = userViewModel.Email;
+                user.PhoneNumber = userViewModel.PhoneNumber;
+
+                IdentityResult result = await userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    await userManager.UpdateSecurityStampAsync(user);
+                    await signInManager.SignOutAsync();
+                    await signInManager.SignInAsync(user, true);
+
+                    ViewBag.success = "true"; // flag
+                }
+                else
+                {
+                    foreach (var item in result.Errors)
+                    {
+                        ModelState.AddModelError("", item.Description);
+                    }
+                }
+            }
+
+            return View(userViewModel); // view'e tekrar gonderiyoruz. gondermezsek kullanici hata alirsa textbox icleri bos olur. 
+        }
+
         public IActionResult PasswordChange()
         {
             return View();
