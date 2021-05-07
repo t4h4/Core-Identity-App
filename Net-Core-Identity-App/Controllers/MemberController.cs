@@ -128,5 +128,11 @@ namespace Net_Core_Identity_App.Controllers
 
             return View(passwordChangeViewModel); // hatalar varsa hatalari tekrar gosterebilmek icin kullaniciya gonderiyoruz. ilgili alanlar textboxlar tekrar dolsun. 
         }
+
+        public void LogOut()
+        {
+            signInManager.SignOutAsync();
+        }
+
     }
 }

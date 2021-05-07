@@ -74,6 +74,7 @@ namespace Net_Core_Identity_App
             services.ConfigureApplicationCookie(opts =>
             {
                 opts.LoginPath = new PathString("/Home/Login"); // yetki olmayan sayfalara girince buraya gidecek. 
+                opts.LogoutPath = new PathString("/Member/LogOut"); // path'in yaptigi islem asp-route-returnUrl="/Home/Index" 'e yonlendirme yapmasi. 
                 opts.Cookie = cookieBuilder;
                 opts.SlidingExpiration = true; // cookie omrunun yarisi gectikten sonra kullanici tekrar istek yaparsa default olarak sure tekrar 60 gune cikarilir. 
                 opts.ExpireTimeSpan = System.TimeSpan.FromDays(60); // 60 gun boyunca cookie bilgisini tutacak. 
