@@ -9,7 +9,7 @@ namespace Net_Core_Identity_App.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "City",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
+                maxLength: 50,
                 nullable: true);
         }
 
