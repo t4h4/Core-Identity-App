@@ -16,23 +16,18 @@ using System.IO;
 namespace Net_Core_Identity_App.Controllers
 {
     [Authorize] // yetkisiz girisi yasakladik. cookie olmadan asla. sadece uyeler girebilir.
-    public class MemberController : Controller
+    public class MemberController : BaseController
     {
 
-        public UserManager<AppUser> userManager { get; } // UserManager DI islemi yapiyoruz.
-        public SignInManager<AppUser> signInManager { get; } // SignInManager DI islemi yapiyoruz.
-
-
-        public MemberController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public MemberController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager):base(userManager,signInManager)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
+    
         }
 
 
         public IActionResult Index()
         {
-            AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result; // uyeyi buluyor ve getiriyoruz. 
+            AppUser user = CurrentUser; // uyeyi buluyor ve getiriyoruz. Base controller yardimiyla.
 
             // UserViewModel userViewModel = new UserViewModel(); // user bilgilerini modele gore aliyoruz. 
             // userViewModel.UserName = user.UserName;
@@ -45,7 +40,7 @@ namespace Net_Core_Identity_App.Controllers
 
         public IActionResult UserEdit()
         {
-            AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result; // kullaniciyi elde ediyoruz. name ile buluyoruz. user identity kesin gelir cunku bu sinif login olanlarin girebilecegi authorize ayarlanmis bir sinif. 
+            AppUser user = CurrentUser; // kullaniciyi elde ediyoruz. name ile buluyoruz. user identity kesin gelir cunku bu sinif login olanlarin girebilecegi authorize ayarlanmis bir sinif. base controller yardimiyla
 
             UserViewModel userViewModel = user.Adapt<UserViewModel>(); // // elde ettigimiz user'i cast ediyoruz. daha once olusturdugumuz userview modele cast ediyoruz. yani o modeldeki property alanlarini degistirebilir sadece. 
 
@@ -62,7 +57,7 @@ namespace Net_Core_Identity_App.Controllers
 
             if (ModelState.IsValid) // gelen bilgiler validse
             {
-                AppUser user = await userManager.FindByNameAsync(User.Identity.Name);
+                AppUser user = CurrentUser; // base controller yardimiyla.
 
 
                 if (userPicture != null && userPicture.Length > 0) // user picture bos degil ve dolu ise
@@ -101,10 +96,7 @@ namespace Net_Core_Identity_App.Controllers
                 }
                 else
                 {
-                    foreach (var item in result.Errors)
-                    {
-                        ModelState.AddModelError("", item.Description);
-                    }
+                    AddModelError(result);
                 }
             }
 
@@ -121,7 +113,7 @@ namespace Net_Core_Identity_App.Controllers
         {
             if (ModelState.IsValid) // view'de girilen model validasyonu gecerliyse, dogruysa
             {
-                AppUser user = userManager.FindByNameAsync(User.Identity.Name).Result; // name degerini o anki cookie bilgisinden okuyor. veritabanindan gelmiyor. async olmadan direk result'tan gidildi.
+                AppUser user = CurrentUser; // name degerini o anki cookie bilgisinden okuyor. veritabanindan gelmiyor. async olmadan direk result'tan gidildi. base controller yardimiyla.
 
                 bool exist = userManager.CheckPasswordAsync(user, passwordChangeViewModel.PasswordOld).Result; // girilen eski sifrenin dogrulugu kontrol ediliyor. 
 
@@ -142,10 +134,7 @@ namespace Net_Core_Identity_App.Controllers
                     }
                     else
                     {
-                        foreach (var item in result.Errors)
-                        {
-                            ModelState.AddModelError("", item.Description); // hatalar modelstate 'e ekleniyor. 
-                        }
+                        AddModelError(result);
                     }
                 }
                 else // eski sifrenin yanlis olma durumu.  exist'e gore. 

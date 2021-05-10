@@ -12,17 +12,14 @@ using System.Threading.Tasks;
 
 namespace Net_Core_Identity_App.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-        public UserManager<AppUser> userManager { get; } // UserManager DI islemi yapiyoruz.
-        public SignInManager<AppUser> signInManager { get; } // SignInManager DI islemi yapiyoruz.
 
-        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+
+        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager):base(userManager,signInManager)
         {
             _logger = logger;
-            this.userManager = userManager;
-            this.signInManager = signInManager;
         }
 
         public IActionResult Index()
@@ -148,10 +145,7 @@ namespace Net_Core_Identity_App.Controllers
                 }
                 else
                 {
-                    foreach (IdentityError item in result.Errors)
-                    {
-                        ModelState.AddModelError("", item.Description);
-                    }
+                    AddModelError(result);
                 }
             }
 
@@ -224,12 +218,7 @@ namespace Net_Core_Identity_App.Controllers
                 }
                 else
                 {
-                    //AddModelError(result);
-
-                    foreach (var item in result.Errors)
-                    {
-                        ModelState.AddModelError("", item.Description);
-                    }
+                    AddModelError(result);
                 }
             }
             else
