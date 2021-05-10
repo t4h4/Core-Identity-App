@@ -10,14 +10,14 @@
 <div class="row">
 
     <div class="col-sm-3">
-        <img style="width:100%;height:100%" src="~/UserPicture/pp.png" />
+        <img style="width:100%; height:100%" src="@Model.Picture" />
     </div>
 
     <div class="col-sm-9">
 
         <table class="table table-bordered table-striped">
             <tr>
-                <th>Kullanıcı ismi</th>
+                <th>Kullanıcı</th>
                 <td>@Model.UserName</td>
             </tr>
             <tr>
@@ -26,9 +26,24 @@
             </tr>
 
             <tr>
-                <th>Telefon no</th>
+                <th>Telefon</th>
                 <td>@Model.PhoneNumber</td>
             </tr>
+
+            <tr>
+                <th>Şehir</th>
+                <td>@Model.City</td>
+            </tr>
+            <tr>
+                <th>Doğum tarihi</th>
+                <td>@Model.BirthDay.Value.ToShortDateString()</td>
+            </tr>
+
+            <tr>
+                <th>Cinsiyet</th>
+                <td>@Model.Gender</td>
+            </tr>
+
         </table>
 
     </div>

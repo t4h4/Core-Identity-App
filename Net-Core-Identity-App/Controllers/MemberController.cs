@@ -8,6 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Net_Core_Identity_App.Enums;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace Net_Core_Identity_App.Controllers
 {
@@ -45,21 +49,45 @@ namespace Net_Core_Identity_App.Controllers
 
             UserViewModel userViewModel = user.Adapt<UserViewModel>(); // // elde ettigimiz user'i cast ediyoruz. daha once olusturdugumuz userview modele cast ediyoruz. yani o modeldeki property alanlarini degistirebilir sadece. 
 
+            ViewBag.Gender = new SelectList(Enum.GetNames(typeof(Gender)));
+
             return View(userViewModel); // view'e dolu bir userViewModel'i veriyoruz. 
         }
 
         [HttpPost]
-        public async Task<IActionResult> UserEdit(UserViewModel userViewModel) // UserEdit.cshtml sayfasindan userViewModel gelecek. 
+        public async Task<IActionResult> UserEdit(UserViewModel userViewModel, IFormFile userPicture) // UserEdit.cshtml sayfasindan userViewModel gelecek. ayrica sayfadan userPicture'i da aldik.
         {
            ModelState.Remove("Password"); // password alani kullanmadigimiz icin kaldirmamiz gerekir. yoksa asagidaki valid'e takilir.
+           ViewBag.Gender = new SelectList(Enum.GetNames(typeof(Gender)));
 
             if (ModelState.IsValid) // gelen bilgiler validse
             {
                 AppUser user = await userManager.FindByNameAsync(User.Identity.Name);
 
+
+                if (userPicture != null && userPicture.Length > 0) // user picture bos degil ve dolu ise
+                {
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(userPicture.FileName); // Guid.NewGuid().ToString() rastgele bi' isim olusturuyor. Path.GetExtension(userPicture.FileName) sonuna dosya uzantisini ekliyor. 15asd15as1d5.png gibi. 
+
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/UserPicture", fileName); // resmi kayit edecegimiz yer. 
+
+                    using (var stream = new FileStream(path, FileMode.Create)) // FileMode.Create, path bossa olustur demek. 
+                    {
+                        await userPicture.CopyToAsync(stream); // kayit yoluna resmi kopyaliyoruz. 
+
+                        user.Picture = "/UserPicture/" + fileName; // veritabanina kayit yolu kaydedildi. 
+                    }
+                }
+
+
                 user.UserName = userViewModel.UserName;
                 user.Email = userViewModel.Email;
                 user.PhoneNumber = userViewModel.PhoneNumber;
+                user.City = userViewModel.City;
+
+                user.BirthDay = userViewModel.BirthDay;
+
+                user.Gender = (int)userViewModel.Gender; // database'de int oldugu icin enum'in int'e cast edilmesi lazim. 
 
                 IdentityResult result = await userManager.UpdateAsync(user);
 
