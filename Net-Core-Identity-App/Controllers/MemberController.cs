@@ -151,5 +151,10 @@ namespace Net_Core_Identity_App.Controllers
             signInManager.SignOutAsync();
         }
 
+        public IActionResult AccessDenied() // opts.AccessDeniedPath = new PathString("/Member/AccessDenied"); startup.cs 'den geliyor. 
+        {
+            return View();
+        }
+
     }
 }

@@ -78,6 +78,7 @@ namespace Net_Core_Identity_App
                 opts.Cookie = cookieBuilder;
                 opts.SlidingExpiration = true; // cookie omrunun yarisi gectikten sonra kullanici tekrar istek yaparsa default olarak sure tekrar 60 gune cikarilir. 
                 opts.ExpireTimeSpan = System.TimeSpan.FromDays(60); // 60 gun boyunca cookie bilgisini tutacak. 
+                opts.AccessDeniedPath = new PathString("/Member/AccessDenied"); // uye kullanici yetkisiz oldugu sayfaya girmeye calistiginda buradaki path'e yonlendirilip, bilgilendirilecek.
             });
 
 

@@ -8,16 +8,18 @@ using System.Threading.Tasks;
 
 namespace Net_Core_Identity_App.Controllers
 {
-    public class AdminController : Controller
+    public class AdminController : BaseController
     {
-        private UserManager<AppUser> userManager { get; }
-        // DI sayesinde UserManager'dan nesne alabilir ve onun içini doldurabiliriz. 
-        public AdminController(UserManager<AppUser> userManager)
+        public AdminController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager) : base(userManager, null, roleManager) // signInManager istiyor lakin burada kullanmaya gerek yok o yuzden null giriyoruz.
         {
-            this.userManager = userManager;
         }
 
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Users()
         {
             return View(userManager.Users.ToList());
         }
