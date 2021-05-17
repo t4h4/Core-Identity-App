@@ -107,5 +107,60 @@ namespace Net_Core_Identity_App.Controllers
 
             return View(roleViewModel);
         }
+
+
+        public IActionResult RoleAssign(string id)
+        {
+            TempData["userId"] = id;
+            AppUser user = userManager.FindByIdAsync(id).Result;
+
+            ViewBag.userName = user.UserName;
+
+            IQueryable<AppRole> roles = roleManager.Roles; // roller database'den cekiliyor. cunku checkbox uzerinde gosterilecek.
+
+            List<string> userroles = userManager.GetRolesAsync(user).Result as List<string>; // user'in sahip oldugu roller liste icine donuyor. .result sonucu Ilist oldugu icin as List diyerek cast ettik. 
+
+            List<RoleAssignViewModel> roleAssignViewModels = new List<RoleAssignViewModel>(); // RoleAssignViewModel yapisinda bir bos liste olusturuyoruz.
+
+            foreach (var role in roles) // database'de var olan rolleri donuyoruz. 
+            {
+                RoleAssignViewModel r = new RoleAssignViewModel();
+                r.RoleId = role.Id;
+                r.RoleName = role.Name;
+                if (userroles.Contains(role.Name)) // o sirada donulen rol, secilen kullanicida var mi yok mu?
+                {
+                    r.Exist = true; // kullanici role sahip, checkbox isaretli.
+                }
+                else
+                {
+                    r.Exist = false; // checkbox bos. 
+                }
+                roleAssignViewModels.Add(r); // list'e ekleme yap.
+            }
+
+            return View(roleAssignViewModels);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RoleAssign(List<RoleAssignViewModel> roleAssignViewModels)
+        {
+            AppUser user = userManager.FindByIdAsync(TempData["userId"].ToString()).Result; // get fonksiyonda su sekilde aldiydik = TempData["userId"] = id;
+
+            foreach (var item in roleAssignViewModels)
+            {
+                if (item.Exist) 
+
+                {
+                    await userManager.AddToRoleAsync(user, item.RoleName); // isaretli olan checkbox rolu, kullaniciya ata.
+                }
+                else
+                {
+                    await userManager.RemoveFromRoleAsync(user, item.RoleName);
+                }
+            }
+
+            return RedirectToAction("Users"); // rol atama, kaldirma tamamlandiktan sonra kullanici, uyeler sayfasina atiliyor.
+        }
+
     }
 }
