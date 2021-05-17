@@ -11,15 +11,21 @@
     <tr>
         <th>Id</th>
         <th>Rol ismi</th>
+        <th>Silme</th>
     </tr>
 
     @foreach (var item in Model)
     {
-        <tr>
+<tr>
 
-            <th>@item.Id</th>
-            <th>@item.Name</th>
-        </tr>
+    <td>@item.Id</td>
+    <td>@item.Name</td>
+    <td>
+        <form asp-action="RoleDelete" asp-route-id="@item.Id" method="post">
+            <button class="btn btn-success" type="submit">Sil</button>
+        </form>
+    </td>
+</tr>
 
     }
 </table>

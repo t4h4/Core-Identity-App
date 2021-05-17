@@ -56,5 +56,16 @@ namespace Net_Core_Identity_App.Controllers
         {
             return View(userManager.Users.ToList());
         }
+
+        public IActionResult RoleDelete(string id)
+        {
+            AppRole role = roleManager.FindByIdAsync(id).Result;
+            if (role != null)
+            {
+                IdentityResult result = roleManager.DeleteAsync(role).Result; // Geri donus tipi IdentityResult.
+            }
+
+            return RedirectToAction("Roles");
+        }
     }
 }
