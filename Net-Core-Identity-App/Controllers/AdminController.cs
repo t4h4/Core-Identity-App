@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Mapster;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Net_Core_Identity_App.Models;
 using Net_Core_Identity_App.ViewModels;
@@ -66,6 +67,45 @@ namespace Net_Core_Identity_App.Controllers
             }
 
             return RedirectToAction("Roles");
+        }
+
+        public IActionResult RoleUpdate(string id)
+        {
+            AppRole role = roleManager.FindByIdAsync(id).Result;
+
+            if (role != null)
+            {
+                return View(role.Adapt<RoleViewModel>()); // mapster yardimiyla ayni isimlere sahip propertyler otomatik eslenecek. IdentityRole'de de name ve id var, RoleViewModel'de de name ve id var esleniyor. esliyoruz cunku olusturdugumuz guncelleme sayfasi RoleViewModel yapisiyla olusturulacak.
+            }
+
+            return RedirectToAction("Roles");
+        }
+
+        [HttpPost]
+        public IActionResult RoleUpdate(RoleViewModel roleViewModel)
+        {
+            AppRole role = roleManager.FindByIdAsync(roleViewModel.Id).Result;
+
+            if (role != null)
+            {
+                role.Name = roleViewModel.Name;
+                IdentityResult result = roleManager.UpdateAsync(role).Result;
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Roles");
+                }
+                else
+                {
+                    AddModelError(result);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Güncelleme işlemi başarısız oldu.");
+            }
+
+            return View(roleViewModel);
         }
     }
 }
