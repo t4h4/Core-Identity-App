@@ -156,5 +156,17 @@ namespace Net_Core_Identity_App.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Manager,Admin")]
+        public IActionResult Manager()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Editor,Admin")] // editor ve admin disindaki uyeler ===> opts.AccessDeniedPath = new PathString("/Member/AccessDenied"); // uye kullanici yetkisiz oldugu sayfaya girmeye calistiginda buradaki path'e yonlendirilip, bilgilendirilecek.
+        public IActionResult Editor()
+        {
+            return View();
+        }
+
     }
 }

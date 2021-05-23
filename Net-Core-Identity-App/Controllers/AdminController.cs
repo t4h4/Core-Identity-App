@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Net_Core_Identity_App.Models;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Net_Core_Identity_App.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : BaseController
     {
         public AdminController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager) : base(userManager, null, roleManager) // signInManager istiyor lakin burada kullanmaya gerek yok o yuzden null giriyoruz.
