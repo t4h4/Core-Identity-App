@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,15 @@ namespace Net_Core_Identity_App
             {
                 opts.UseSqlServer(Configuration["ConnectionStrings:DefaultConnectionString"]);
                 // opts.UseSqlServer(configuration["ConnectionStrings:DefaultAzureConnectionString"]);
+            });
+
+
+            services.AddAuthorization(opts =>
+            {
+                opts.AddPolicy("AnkaraPolicy", policy =>
+                {
+                    policy.RequireClaim("city", "Ankara");
+                });
             });
 
 
@@ -81,6 +91,7 @@ namespace Net_Core_Identity_App
                 opts.AccessDeniedPath = new PathString("/Member/AccessDenied"); // uye kullanici yetkisiz oldugu sayfaya girmeye calistiginda buradaki path'e yonlendirilip, bilgilendirilecek.
             });
 
+            services.AddScoped<IClaimsTransformation, ClaimProvider.ClaimProvider>(); // uygulama icerisinde IClaimsTransformation interface'i ile karsilasilirsa, ClaimProvider'dan nesne ornegi olustur. 
 
 
             services.AddControllersWithViews();

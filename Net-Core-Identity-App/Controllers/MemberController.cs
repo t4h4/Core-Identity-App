@@ -168,5 +168,12 @@ namespace Net_Core_Identity_App.Controllers
             return View();
         }
 
+
+        [Authorize(Policy = "AnkaraPolicy")]
+        public IActionResult AnkaraPage()
+        {
+            return View();
+        }
+
     }
 }
