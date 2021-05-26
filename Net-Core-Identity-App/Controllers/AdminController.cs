@@ -24,6 +24,12 @@ namespace Net_Core_Identity_App.Controllers
         }
 
 
+        public IActionResult Claims()
+        {
+            return View(User.Claims.ToList()); // claims, IEnumerable donuyor. 
+        }
+
+
         public IActionResult RoleCreate()
         {
             return View();
