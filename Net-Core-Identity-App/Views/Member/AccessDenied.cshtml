@@ -4,5 +4,7 @@
     Layout = "~/Views/Member/_MemberLayout.cshtml";
 }
 
-<h1>Bu sayfaya kullanıcı olarak, erişim yetkiniz yoktur.</h1>
+<div class="alert alert-danger">
+    @ViewBag.message
+</div>
 

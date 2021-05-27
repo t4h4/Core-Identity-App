@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Net_Core_Identity_App.Models;
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -35,6 +36,19 @@ namespace Net_Core_Identity_App.ClaimProvider
                             Claim CityClaim = new Claim("city", user.City, ClaimValueTypes.String, "Internal"); // dagitimci internal. 
 
                             identity.AddClaim(CityClaim);
+                        }
+                    }
+
+                    if (user.BirthDay != null)
+                    {
+                        var today = DateTime.Today;
+                        var age = today.Year - user.BirthDay?.Year;
+
+                        if (age > 15)
+                        {
+                            Claim ViolenceClaim = new Claim("violence", true.ToString(), ClaimValueTypes.String, "Internal");
+
+                            identity.AddClaim(ViolenceClaim);
                         }
                     }
                 }

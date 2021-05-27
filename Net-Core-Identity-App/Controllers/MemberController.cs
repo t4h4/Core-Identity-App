@@ -151,8 +151,22 @@ namespace Net_Core_Identity_App.Controllers
             signInManager.SignOutAsync();
         }
 
-        public IActionResult AccessDenied() // opts.AccessDeniedPath = new PathString("/Member/AccessDenied"); startup.cs 'den geliyor. 
+        // https://localhost:44313/Member/AccessDenied?ReturnUrl=%2FMember%2FViolencePage
+        public IActionResult AccessDenied(string ReturnUrl) // opts.AccessDeniedPath = new PathString("/Member/AccessDenied"); startup.cs 'den geliyor. 
         {
+            if (ReturnUrl.Contains("ViolencePage"))
+            {
+                ViewBag.message = "Erişmeye çalıştığınız sayfa şiddet bazlı video içerdiğinden dolayı 15 yaşında büyük olmanız gerekmektedir";
+            }
+            else if (ReturnUrl.Contains("AnkaraPage"))
+            {
+                ViewBag.message = "Only Angara";
+            }
+            else
+            {
+                ViewBag.message = "Bu sayfaya erişim izniniz yoktur. Erişim izni almak için site yöneticisiyle iletişime geçiniz.";
+            }
+
             return View();
         }
 
@@ -171,6 +185,12 @@ namespace Net_Core_Identity_App.Controllers
 
         [Authorize(Policy = "AnkaraPolicy")]
         public IActionResult AnkaraPage()
+        {
+            return View();
+        }
+
+        [Authorize(Policy = "ViolencePolicy")]
+        public IActionResult ViolencePage()
         {
             return View();
         }

@@ -43,6 +43,10 @@ namespace Net_Core_Identity_App
                 {
                     policy.RequireClaim("city", "Ankara");
                 });
+                opts.AddPolicy("ViolencePolicy", policy =>
+                {
+                    policy.RequireClaim("violence");
+                });
             });
 
 

@@ -30,9 +30,6 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-action="Manager" asp-controller="Member">Manager Panel</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-action="AnkaraPage" asp-controller="Member">Ankara Page</a>
-                        </li>
 
                     </ul>
                 </div>
@@ -49,11 +46,15 @@
             <div class="col-md-4">
                 <h3>Menü</h3>
 
+                <a class="btn btn-danger btn-block" asp-action="AnkaraPage" asp-controller="Member">Ankara Page</a>
+
+                <a class="btn btn-danger btn-block" asp-action="ViolencePage" asp-controller="Member">Violence Video</a>
+
                 <a class="btn btn-info btn-block" asp-action="PasswordChange" asp-controller="Member">Şifre değiştirme</a>
 
                 <a class="btn btn-info btn-block" asp-action="UserEdit" asp-controller="Member">Bilgi güncelleme</a>
 
-                <a class="btn btn-info btn-block" asp-action="Logout" asp-controller="Member" asp-route-returnUrl="/Home/Index">Çıkış yap</a> @*return url cikis yapilinca gidecegi yer.*@ 
+                <a class="btn btn-info btn-block" asp-action="Logout" asp-controller="Member" asp-route-returnUrl="/Home/Index">Çıkış yap</a> @*return url cikis yapilinca gidecegi yer.*@
             </div>
         </div>
     </div>
