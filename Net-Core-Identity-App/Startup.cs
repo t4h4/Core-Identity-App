@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +30,8 @@ namespace Net_Core_Identity_App
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IAuthorizationHandler, ExpireDateExchangeHandler>(); // AddTransient kullanilmasinin sebebi, her IAuthorizationHandler ile karsilastigi zaman ExpireDateExchangeHandler 'da bir tane nesne ornegi olustursun. new ExpireDateExchangeRequirement() metodunu her seferinde istiyoruz. 
+
             // entity servis ekleme
             services.AddDbContext<AppIdentityDbContext>(opts =>
             {
@@ -46,6 +49,10 @@ namespace Net_Core_Identity_App
                 opts.AddPolicy("ViolencePolicy", policy =>
                 {
                     policy.RequireClaim("violence");
+                });
+                opts.AddPolicy("ExchangePolicy", policy =>
+                {
+                    policy.AddRequirements(new ExpireDateExchangeRequirement()); // ExpireDateExchangeRequirement gereksiniminden nesne olusturuyoruz.
                 });
             });
 
@@ -95,7 +102,7 @@ namespace Net_Core_Identity_App
                 opts.AccessDeniedPath = new PathString("/Member/AccessDenied"); // uye kullanici yetkisiz oldugu sayfaya girmeye calistiginda buradaki path'e yonlendirilip, bilgilendirilecek.
             });
 
-            services.AddScoped<IClaimsTransformation, ClaimProvider.ClaimProvider>(); // uygulama icerisinde IClaimsTransformation interface'i ile karsilasilirsa, ClaimProvider'dan nesne ornegi olustur. 
+            services.AddScoped<IClaimsTransformation, ClaimProvider.ClaimProvider>(); // uygulama icerisinde IClaimsTransformation interface'i ile karsilasilirsa, ClaimProvider'dan nesne ornegi olustur. AddScoped, bir istek boyunca ayný nesneyi kullanýr, bir kere olusturur. 
 
 
             services.AddControllersWithViews();

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Net_Core_Identity_App.Enums;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Security.Claims;
 
 namespace Net_Core_Identity_App.Controllers
 {
@@ -154,13 +155,17 @@ namespace Net_Core_Identity_App.Controllers
         // https://localhost:44313/Member/AccessDenied?ReturnUrl=%2FMember%2FViolencePage
         public IActionResult AccessDenied(string ReturnUrl) // opts.AccessDeniedPath = new PathString("/Member/AccessDenied"); startup.cs 'den geliyor. 
         {
-            if (ReturnUrl.Contains("ViolencePage"))
+            if (ReturnUrl.ToLower().Contains("ViolencePage"))
             {
                 ViewBag.message = "Erişmeye çalıştığınız sayfa şiddet bazlı video içerdiğinden dolayı 15 yaşında büyük olmanız gerekmektedir";
             }
-            else if (ReturnUrl.Contains("AnkaraPage"))
+            else if (ReturnUrl.ToLower().Contains("AnkaraPage"))
             {
                 ViewBag.message = "Only Angara";
+            }
+            else if (ReturnUrl.ToLower().Contains("exchange"))
+            {
+                ViewBag.message = "30 günlük ücretsiz deneme hakkınız sona ermiştir.";
             }
             else
             {
@@ -191,6 +196,32 @@ namespace Net_Core_Identity_App.Controllers
 
         [Authorize(Policy = "ViolencePolicy")]
         public IActionResult ViolencePage()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> ExchangeRedirect() // IActionResult Exchange() sayfasina yonlendirilecek.
+        {
+            bool result = User.HasClaim(x => x.Type == "ExpireDateExchange"); // kullanicida belirttigimiz claim var mi?
+
+            if (!result)
+            {
+                // AspNetUserClaims tablosuna ClaimType'i ExpireDateExchange olan, ClaimValue'su ise su andaki tarihten 30 gun sonrasi olan deger tutacagiz.
+
+                Claim ExpireDateExchange = new Claim("ExpireDateExchange", DateTime.Now.AddDays(30).Date.ToShortDateString(), ClaimValueTypes.String, "Internal");
+
+                await userManager.AddClaimAsync(CurrentUser, ExpireDateExchange); // claims kullaniciya ekleniyor. 
+
+                // cookie guncel kalmas icin giris ve cikis islemi.
+                await signInManager.SignOutAsync();
+                await signInManager.SignInAsync(CurrentUser, true); // true 60 gun boyunca cookie saklaniyor.
+            }
+
+            return RedirectToAction("Exchange");
+        }
+
+        [Authorize(Policy = "ExchangePolicy")]
+        public IActionResult Exchange()
         {
             return View();
         }
