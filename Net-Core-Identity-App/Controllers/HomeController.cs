@@ -71,6 +71,14 @@ namespace Net_Core_Identity_App.Controllers
 
 
 
+                    if (userManager.IsEmailConfirmedAsync(user).Result == false)
+                    {
+                        ModelState.AddModelError("", "Email adresiniz onaylanmamıştır. Lütfen gelen kutunuzu kontrol ediniz."); // hata herhangi bir textbox'i hedef almayacak, o yuzden ilk alan bos.
+                        return View(userlogin); // hata ile birlikte userlogin'e donus yapilacak.
+                    }
+
+
+
 
                     await signInManager.SignOutAsync(); // oncesinde kullanici cikis yapiyor. temiz baslangic. kullanici cookie siliniyor.
 
@@ -141,6 +149,19 @@ namespace Net_Core_Identity_App.Controllers
 
                 if(result.Succeeded) // eger kullanici basarili sekilde kaydolduysa onu login ekranina yonlendirecegiz. 
                 {
+                    string confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user); // verilen user bilgisine gore token olusturuldu. 
+
+                    // ConfirmEmail kullanici linke tikladiginda gidecegi sayfa, Home controller dahilinde gelecek. sonrasi query string
+                    string link = Url.Action("ConfirmEmail", "Home", new
+                    {
+                        userId = user.Id,
+                        token = confirmationToken
+                    },  protocol: HttpContext.Request.Scheme // http mi https mi?
+
+                    );
+
+                    Helper.EmailConfirmation.SendEmail(link, user.Email);
+
                     return RedirectToAction("LogIn");
                 }
                 else
@@ -225,9 +246,26 @@ namespace Net_Core_Identity_App.Controllers
             {
                 ModelState.AddModelError("", "hata meydana gelmiştir. Lütfen daha sonra tekrar deneyiniz.");
             }
-
+                    
             return View(passwordResetViewModel);
+        }
 
+
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            IdentityResult result = await userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+            {
+                ViewBag.status = "Email adresiniz onaylanmıştır. Login ekranından giriş yapabilirsiniz.";
+            }
+            else
+            {
+                ViewBag.status = "Bir hata meydana geldi. Lütfen daha sonra tekrar deneyiniz.";
+            }
+            return View();
         }
     }
 }
