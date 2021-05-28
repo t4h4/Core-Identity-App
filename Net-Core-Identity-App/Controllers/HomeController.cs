@@ -175,7 +175,7 @@ namespace Net_Core_Identity_App.Controllers
 
                 //  www.t4h4.net/Home/ResetPasswordConfirm?userId=sdjfsjf&token=dfjkdjfdjf
 
-                Helper.PasswordReset.PasswordResetSendEmail(passwordResetLink);
+                Helper.PasswordReset.PasswordResetSendEmail(passwordResetLink, user.Email);
 
                 ViewBag.status = "success"; // view'e mesaj gonderiyoruz.
                 TempData["durum"] = true.ToString();

@@ -8,7 +8,7 @@ namespace Net_Core_Identity_App.Helper
 {
     public static class PasswordReset
     {
-        public static void PasswordResetSendEmail(string link) // link
+        public static void PasswordResetSendEmail(string link, string email) // link
 
         {
             MailMessage mail = new MailMessage();
@@ -16,7 +16,7 @@ namespace Net_Core_Identity_App.Helper
             SmtpClient smtpClient = new SmtpClient("mail.t4h4.net");
 
             mail.From = new MailAddress("taha@t4h4.net");
-            mail.To.Add("thyasinerkan@gmail.com");
+            mail.To.Add(email);
 
             mail.Subject = $"www.t4h4.net::Şifre sıfırlama";
             mail.Body = "<h2>Şifrenizi yenilemek için lütfen aşağıdaki linke tıklayınız.</h2><hr/>";
