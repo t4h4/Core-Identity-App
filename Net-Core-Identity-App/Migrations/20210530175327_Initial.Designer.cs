@@ -10,8 +10,8 @@ using Net_Core_Identity_App.Models;
 namespace Net_Core_Identity_App.Migrations
 {
     [DbContext(typeof(AppIdentityDbContext))]
-    [Migration("20210509141813_AddCity")]
-    partial class AddCity
+    [Migration("20210530175327_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -160,6 +160,9 @@ namespace Net_Core_Identity_App.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("BirthDay")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
@@ -173,6 +176,9 @@ namespace Net_Core_Identity_App.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -196,6 +202,9 @@ namespace Net_Core_Identity_App.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Picture")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

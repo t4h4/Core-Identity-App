@@ -35,8 +35,8 @@ namespace Net_Core_Identity_App
             // entity servis ekleme
             services.AddDbContext<AppIdentityDbContext>(opts =>
             {
-                opts.UseSqlServer(Configuration["ConnectionStrings:DefaultConnectionString"]);
-                // opts.UseSqlServer(configuration["ConnectionStrings:DefaultAzureConnectionString"]);
+                // opts.UseSqlServer(Configuration["ConnectionStrings:DefaultConnectionString"]);
+                opts.UseSqlServer(Configuration["ConnectionStrings:DefaultAzureConnectionString"]);
             });
 
 
