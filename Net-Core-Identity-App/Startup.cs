@@ -56,6 +56,16 @@ namespace Net_Core_Identity_App
                 });
             });
 
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                IConfigurationSection googleAuthNSection =
+                Configuration.GetSection("Authentication:Google");
+
+                options.ClientId = googleAuthNSection["ClientId"];
+                options.ClientSecret = googleAuthNSection["ClientSecret"];
+                });
+
 
             // identity servis ekleme
             services.AddIdentity<AppUser, AppRole>(opts => {

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Net_Core_Identity_App.Controllers
@@ -265,6 +266,101 @@ namespace Net_Core_Identity_App.Controllers
             {
                 ViewBag.status = "Bir hata meydana geldi. Lütfen daha sonra tekrar deneyiniz.";
             }
+            return View();
+        }
+
+
+        public IActionResult GoogleLogin(string ReturnUrl) // erismeye calistigi sayfaya gonderilebilmesi icin ReturnUrl
+
+        {
+            string RedirectUrl = Url.Action("ExternalResponse", "Home", new { ReturnUrl = ReturnUrl });
+
+            var properties = signInManager.ConfigureExternalAuthenticationProperties("Google", RedirectUrl); // saglayici ismi belirtilmeli, saglayiciyla is bittikten sonra RedirectUrl'e donulecek. 
+
+            return new ChallengeResult("Google", properties);
+        }
+
+
+        public async Task<IActionResult> ExternalResponse(string ReturnUrl = "/") // return url gelmezse / anasayfaya yonlenecek. 
+        {
+            ExternalLoginInfo info = await signInManager.GetExternalLoginInfoAsync(); // harici loginle alakali bilgiler gelecek.
+                                                                                      
+            if (info == null)
+            {
+                return RedirectToAction("LogIn");
+            }
+            else
+            {
+                // SignInResult donuyor. cakisma olmamasi icin namespace belirtmek gerekir. Microsoft.AspNetCore.Identity
+                Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true); // isPersistent değeri true varsayilan cookie'ye gore 60 gun tutulacak. 
+                // daha once kullanici login olmussa, login islemi gerceklesecek. 
+
+                if (result.Succeeded)
+                {
+                    return Redirect(ReturnUrl);
+                }
+
+                // kullanici ilk kez geliyorsa;
+                else
+                {
+                    AppUser user = new AppUser();
+
+                    // Principal uzerinden saglayicidan gelen claimlere ulasabiliyoruz. 
+                    user.Email = info.Principal.FindFirst(ClaimTypes.Email).Value; // claim'lerden email olan bulunacak. value'si cekilecek.
+                    string ExternalUserId = info.Principal.FindFirst(ClaimTypes.NameIdentifier).Value; // NameIdentifier, saglayicidaki id'yi verecek.
+
+                    // saglayicidan gelen ad ve soyad ile username olusturma islemi
+                    if (info.Principal.HasClaim(x => x.Type == ClaimTypes.Name)) // name claim varsa
+                    {
+                        string userName = info.Principal.FindFirst(ClaimTypes.Name).Value;
+
+                        // bosluk yerine - ve kucuk. baska isimle cakismamasi icin id'de ekleniyor. (ilk 5) 
+                        userName = userName.Replace(' ', '-').ToLower() + ExternalUserId.Substring(0, 5).ToString();
+
+                        user.UserName = userName;
+                    }
+                    else // eger name claim yoksa kullanici adi email
+                    {
+                        user.UserName = info.Principal.FindFirst(ClaimTypes.Email).Value;
+                    }
+
+                    IdentityResult createResult = await userManager.CreateAsync(user);
+
+                    if (createResult.Succeeded) // kullanici basarili bi' sekilde olusmussa
+                    {
+                        
+                        IdentityResult loginResult = await userManager.AddLoginAsync(user, info); // login islemi için, AspNetUserLogins tablosuna kayit ediliyor.
+
+
+                        if (loginResult.Succeeded)
+                        {
+                            // await signInManager.SignInAsync(user, true); // giris islemi gerceklesiyor. Kullanicinin isPersisten degeri true cekiliyor. Cooki belirtilen sure kadar aktif. 
+
+                            await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true); // gelen kullanicinin saglayicidan geldigi belli olsun diye ExternalLoginSignInAsync kullanildi. Uye claims'den saglayici araciligiyla geldigi belli olacak kullanicinin. 
+
+                            return Redirect(ReturnUrl);
+                        }
+                        else
+                        {
+                            AddModelError(loginResult);
+                        }
+                    }
+                    else
+                    {
+                        AddModelError(createResult); // createResult hatalari
+                    }
+                }
+            }
+
+            // Model state yapisindan hatalari liste seklinde LINQ kullanarak cekme ve CustomError sayfasina model olarak gonderme
+
+            List<string> errors = ModelState.Values.SelectMany(x => x.Errors).Select(y => y.ErrorMessage).ToList();
+
+            return View("CustomError", errors);
+        }
+
+        public ActionResult CustomError()
+        {
             return View();
         }
     }

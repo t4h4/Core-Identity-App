@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Net_Core_Identity_App</RootNamespace>
+    <UserSecretsId>e38d8130-0ec5-44f5-8ea6-813c9d10cf9d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
